@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Jeff’s Pigeon Dash</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #355e3b;
+      font-family: 'Comic Neue', 'Comic Sans MS', cursive, sans-serif;
+    }
+    #introScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #355e3b, #2c4b29);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 3000;
+      text-align: center;
+      padding: 20px;
+    }
+    #introScreen h1 {
+      font-size: 48px;
+      color: #fff;
+    }
+    #introScreen p {
+      max-width: 700px;
+      font-size: 20px;
+      color: #f0f0f0;
+      line-height: 1.4;
+    }
+    .group-graphic {
+      display: flex;
+      gap: 40px;
+      margin: 30px;
+      align-items: flex-end;
+    }
+    .intro-character {
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom;
+    }
+    .intro-jeff {
+      width: 160px;
+      height: 160px;
+      background-image: url('jeff.png');
+    }
+    .intro-pigeon {
+      width: 100px;
+      height: 100px;
+      background-image: url('pigeon.png');
+    }
+    .intro-hellen {
+      width: 140px;
+      height: 160px;
+      background-image: url('hellenkeller.png');
+    }
+    .start-button, #restartButton, #restartWinButton {
+      margin-top: 20px;
+      font-size: 24px;
+      padding: 10px 20px;
+      cursor: pointer;
+      background: #ffffff;
+      color: #333;
+      border: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    .start-button:hover, #restartButton:hover, #restartWinButton:hover {
+      background: #ffde59;
+      color: #000;
+    }
+    #gameArea {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(to bottom right, #355e3b, #2c4b29);
+      overflow: hidden;
+    }
+    .jeff, .pigeon, .monster, .evilPigeon, .imitationPigeon, .nest, .goldenPigeon {
+      position: absolute;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+    .jeff {
+      width: 80px; height: 80px;
+      background-image: url('jeff.png');
+    }
+    .pigeon {
+      width: 50px; height: 50px;
+      background-image: url('pigeon.png');
+    }
+    .monster {
+      width: 70px; height: 140px;
+      background-image: url('hellenkeller.png');
+      background-position: center bottom;
+    }
+    .evilPigeon {
+      width: 40px; height: 40px;
+      background-image: url('redpigeon.png');
+    }
+    .imitationPigeon {
+      width: 50px; height: 50px;
+      background-image: url('hellenpigeon.png');
+    }
+    .nest {
+      width: 80px; height: 80px;
+      background-image: url('nest.png');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: contain;
+      border: none;
+    }
+    .goldenPigeon {
+      width: 60px; height: 60px;
+      background-image: url('goldenpigeon.png');
+    }
+    #message, #instructions, #scoreboard, #levelInfo, #pigeonCount {
+      position: fixed;
+      width: 100%;
+      text-align: center;
+      z-index: 1000;
+      font-size: 24px;
+      color: #fff;
+      margin-top: 10px;
+      white-space: pre-line;
+    }
+    #instructions {
+      top: 200px;
+      font-size: 30px;
+      color: #ffde59;
+      font-weight: bold;
+    }
+    #scoreboard { top: 40px; font-size: 20px; }
+    #levelInfo { top: 70px; font-size: 20px; color: #e0e0e0; }
+    #pigeonCount { top: 100px; font-size: 18px; color: #e0e0e0; }
+    #gameOverScreen, #winScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      font-size: 32px;
+      z-index: 2000;
+      text-align: center;
+      white-space: pre-line;
+      padding: 20px;
+    }
+    .evilPigeonText {
+      font-size: 60px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 2px 2px 0 #000;
+      text-align: center;
+      width: 100%;
+      position: fixed;
+      top: 30%;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <div id="introScreen">
+    <h1>Jeff’s Pigeon Dash</h1>
+    <div class="group-graphic">
+      <div class="intro-character intro-jeff"></div>
+      <div class="intro-character intro-pigeon"></div>
+      <div class="intro-character intro-hellen"></div>
+    </div>
+    <p>
+      Welcome to <strong>Jeff’s Pigeon Dash</strong>! Help <strong>Jeff</strong> scoop up as many pigeons as he can<br/>
+      while staying far away from <strong>Hellen Keller</strong>, the legendary <strong>pigeon-hating menace</strong>!<br/><br/>
+      Hellen might be blind and deaf, but somehow she can still sense where you are,
+      especially if you’re hanging out with pigeons, which she <strong>absolutely despises</strong>!<br/><br/>
+      Move fast, or Hellen’s uncanny sixth sense will hunt you down like yesterday’s breadcrumbs.<br/><br/>
+      Use the arrow keys to move. Don’t let <strong>Hellen</strong> catch you!
+    </p>
+    <button class="start-button" id="startButton">Start Game</button>
+  </div>
+
+  <div id="gameArea">
+    <div class="jeff" id="jeff"></div>
+    <div class="monster" id="monster"></div>
+  </div>
+
+  <div id="message"></div>
+  <div id="instructions"></div>
+  <div id="scoreboard">Score: 0</div>
+  <div id="levelInfo"></div>
+  <div id="pigeonCount">Pigeons Saved: 0</div>
+
+  <div id="gameOverScreen">
+    <div id="gameOverText"></div>
+    <button id="restartButton">Restart Game</button>
+  </div>
+
+  <div id="winScreen">
+    <h1>🎉 Jeff Escaped Hellen! 🎉</h1>
+    <p></p>
+    <div class="group-graphic">
+      <div class="intro-character intro-jeff"></div>
+      <div class="intro-character intro-pigeon"></div>
+    </div>
+    <button id="restartWinButton" class="start-button">Play Again</button>
+  </div>
+
+<script>
+const trollVictoryLines = [
+  "💥 Hellen’s pigeons just rage-quit the coop.",
+  "😂 Hellen’s sensors glitched like a dial-up modem!",
+  "🏆 Jeff’s pigeons singing: ‘We are the champions!’",
+  "🤣 Hellen tried to sneak up but tripped over a pigeon.",
+  "🔥 Hellen’s evil plan blew up like a popped balloon.",
+  "😎 Jeff's speed left Hellen buffering forever.",
+  "🕺 Jeff moonwalked past Hellen's whole squad!",
+  "🫡 Hellen's sixth sense just called in sick.",
+  "🎉 Jeff's pigeons throwing a victory party!",
+  "👓 Hellen’s ‘blind’ tactics? More like no tactics!",
+  "👂 Hellen’s deaf ears missed Jeff’s battle cry!",
+  "😆 Even pigeons laugh at Hellen’s ‘skills’!"
+];
+const trollGameOverLines = [
+  "💀 Hellen smacked Jeff back to Level 1.",
+  "😭 Jeff got pigeoned into oblivion.",
+  "⚡ Hellen activated God Mode.",
+  "😵 Jeff’s pigeons are crying in a corner.",
+  "🤣 Hellen speedran Jeff’s downfall.",
+  "🥴 Jeff faceplanted right into Hellen’s trap.",
+  "🚫 Hellen dropped the 'No pigeons allowed' sign on Jeff.",
+  "👀 Jeff got clapped while looking for breadcrumbs.",
+  "🔔 Hellen rang Jeff’s bell like a dinner triangle.",
+  "🦻 Hellen's deafness? Jeff's pigeons are louder!",
+  "🙈 Hellen’s blindness backfired big time!",
+  "😂 Hellen needs new glasses... or just better luck."
+];
+
+const jeff = document.getElementById('jeff');
+const monster = document.getElementById('monster');
+const message = document.getElementById('message');
+const instructions = document.getElementById('instructions');
+const scoreboard = document.getElementById('scoreboard');
+const levelInfo = document.getElementById('levelInfo');
+const pigeonCountDisplay = document.getElementById('pigeonCount');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const gameOverText = document.getElementById('gameOverText');
+const restartButton = document.getElementById('restartButton');
+const winScreen = document.getElementById('winScreen');
+const restartWinButton = document.getElementById('restartWinButton');
+const introScreen = document.getElementById('introScreen');
+const startButton = document.getElementById('startButton');
+const gameArea = document.getElementById('gameArea');
+
+let keysPressed = {};
+let levelIndex = 0;
+let currentLevel = null;
+let pigeonsSaved = 0;
+let pigeonsCollected = 0;
+let score = 0;
+let jeffPos = { x: 100, y: 100 };
+let jeffSpeed = 3.5;
+let monsterPos = { x: 800, y: 100 };
+let monsterSpeed = 2;
+let pigeons = [];
+let evilPigeons = [];
+let goldenPigeons = [];
+let animationFrameId;
+let evilPigeonInterval;
+
+const levels = [
+  { name: "Level 1: Collect 5 pigeons!", pigeonsRequired: 5, special: null, instruction: "Scoop up 5 pigeons before Hellen finds you!" },
+  { name: "Level 2: Rescue 10 pigeons!", pigeonsRequired: 10, special: "pigeonRescue", instruction: "These pigeons are loose! Catch 10 of them!" },
+  { name: "Level 3: Defend the Nest!", pigeonsRequired: 20, special: "pigeonDefense", instruction: "Stop 20 evil pigeons from reaching the nest!" },
+  { name: "Level 4: Hellen Pigeon Imposter!", pigeonsRequired: 9, special: "hellenPigeon", instruction: "Avoid the fake pigeon and collect the rest!" },
+  { name: "Level 5: Golden Pigeon Finale!", pigeonsRequired: 3, special: "goldenFinale", instruction: "Catch golden pigeons that flee and teleport, while evil pigeons chase you!" }
+];
+
+function jeffSpeedForLevel(level) {
+  if (level === 0 || level === 1) return 3.5;
+  if (level === 2) return 2.2;
+  if (level === 3) return 2.5;
+  if (level === 4) return 2.8;
+  if (level === 5) return 3.1;
+  return 3.1;
+}
+function hellenSpeedForLevel(level) {
+  if (level === 0 || level === 1) return 2.0;
+  if (level === 2) return 1.9;
+  if (level === 3) return 1.4;
+  if (level === 4) return 1.8;
+  if (level === 5) return 2.8;
+  return 2.2;
+}
+function pigeonSpeedForLevel(level) {
+  if (level === 2) return 0.3;
+  if (level === 4) return 0.25;
+  return 0.5 + level * 0.2;
+}
+
+document.addEventListener('keydown', e => keysPressed[e.key] = true);
+document.addEventListener('keyup', e => keysPressed[e.key] = false);
+
+startButton.addEventListener('click', () => {
+  introScreen.style.display = 'none';
+  startLevel(levelIndex);
+});
+
+restartButton.addEventListener('click', () => {
+  gameOverScreen.style.display = 'none';
+  levelIndex = 0;
+  pigeonsSaved = 0;
+  score = 0;
+  startLevel(levelIndex);
+});
+
+restartWinButton.addEventListener('click', () => {
+  winScreen.style.display = 'none';
+  levelIndex = 0;
+  pigeonsSaved = 0;
+  score = 0;
+  startLevel(levelIndex);
+});
+
+function randomPosition(sizeX, sizeY) {
+  return {
+    x: Math.random() * (window.innerWidth - sizeX),
+    y: Math.random() * (window.innerHeight - sizeY)
+  };
+}
+
+function clearGameArea() {
+  if (evilPigeonInterval) {
+    clearInterval(evilPigeonInterval);
+    evilPigeonInterval = null;
+  }
+  pigeons.forEach(p => p.el.remove());
+  pigeons = [];
+  evilPigeons.forEach(p => p.el.remove());
+  evilPigeons = [];
+  goldenPigeons.forEach(g => g.el.remove());
+  goldenPigeons = [];
+  const nest = document.getElementById("nest");
+  if (nest) nest.remove();
+  message.textContent = "";
+}
+function isColliding(aPos, bRect) {
+  return (
+    aPos.x < bRect.x + bRect.w &&
+    aPos.x + 80 > bRect.x &&
+    aPos.y < bRect.y + bRect.h &&
+    aPos.y + 80 > bRect.y
+  );
+}
+
+function isHellenCatchingJeff(jeffPos, monsterPos) {
+  const hellenCenterX = monsterPos.x;
+  const hellenCenterY = monsterPos.y;
+  const jeffRect = {
+    x: jeffPos.x,
+    y: jeffPos.y,
+    w: 80,
+    h: 80
+  };
+  return (
+    hellenCenterX >= jeffRect.x &&
+    hellenCenterX <= jeffRect.x + jeffRect.w &&
+    hellenCenterY >= jeffRect.y &&
+    hellenCenterY <= jeffRect.y + jeffRect.h
+  );
+}
+
+function updateMonsterPosition() {
+  monster.style.left = (monsterPos.x - 35) + "px";
+  monster.style.top = (monsterPos.y - 70) + "px";
+}
+
+function startLevel(index) {
+  currentLevel = levels[index];
+  pigeonsCollected = 0;
+  clearGameArea();
+
+  jeffPos = { x: 100, y: 100 };
+  monsterPos = { x: window.innerWidth - 300, y: window.innerHeight - 300 };
+  jeffSpeed = jeffSpeedForLevel(levelIndex);
+  monsterSpeed = hellenSpeedForLevel(levelIndex);
+
+  levelInfo.textContent = currentLevel.name;
+  scoreboard.textContent = `Score: ${score}`;
+  pigeonCountDisplay.textContent = `Pigeons Saved: ${pigeonsSaved}`;
+  message.textContent = "";
+  instructions.textContent = currentLevel.instruction;
+  instructions.style.display = "block";
+
+  jeff.style.left = jeffPos.x + "px";
+  jeff.style.top = jeffPos.y + "px";
+  updateMonsterPosition();
+  monster.style.display = "block";
+
+  setTimeout(() => {
+    instructions.style.display = "none";
+    runLevelScenario();
+    animate();
+  }, 3000);
+}
+
+function runLevelScenario() {
+  if (currentLevel.special === null) {
+    spawnStaticPigeon();
+  } else if (currentLevel.special === "pigeonRescue") {
+    spawnMovingPigeons(currentLevel.pigeonsRequired);
+  } else if (currentLevel.special === "pigeonDefense") {
+    startPigeonDefense(currentLevel.pigeonsRequired);
+  } else if (currentLevel.special === "hellenPigeon") {
+    spawnHellenPigeonLevel();
+  } else if (currentLevel.special === "goldenFinale") {
+    spawnGoldenFinale(currentLevel.pigeonsRequired);
+  }
+}
+
+function spawnStaticPigeon() {
+  const pos = randomPosition(50, 50);
+  const pigeon = document.createElement('div');
+  pigeon.classList.add('pigeon');
+  pigeon.style.left = pos.x + 'px';
+  pigeon.style.top = pos.y + 'px';
+  gameArea.appendChild(pigeon);
+  pigeons.push({ el: pigeon, x: pos.x, y: pos.y, w: 50, h: 50, vx: 0, vy: 0 });
+}
+
+function spawnMovingPigeons(count) {
+  const speed = pigeonSpeedForLevel(levelIndex);
+  for (let i = 0; i < count; i++) {
+    const pos = randomPosition(50, 50);
+    const pigeon = document.createElement('div');
+    pigeon.classList.add('pigeon');
+    pigeon.style.left = pos.x + 'px';
+    pigeon.style.top = pos.y + 'px';
+
+    const dirX = Math.random() < 0.5 ? 1 : -1;
+    const dirY = Math.random() < 0.5 ? 1 : -1;
+    const vx = speed * dirX;
+    const vy = speed * dirY;
+
+    gameArea.appendChild(pigeon);
+    pigeons.push({
+      el: pigeon,
+      x: pos.x,
+      y: pos.y,
+      w: 50,
+      h: 50,
+      vx,
+      vy
+    });
+  }
+}
+function startPigeonDefense(numPigeons) {
+  const nest = document.createElement('div');
+  nest.classList.add('nest');
+  nest.id = "nest";
+  nest.style.left = (window.innerWidth / 2 - 40) + "px";
+  nest.style.top = (window.innerHeight / 2 - 40) + "px";
+  gameArea.appendChild(nest);
+
+  document.body.insertAdjacentHTML("beforeend", `<div class="evilPigeonText">EVIL PIGEONS - DEFEND THE NEST!</div>`);
+  setTimeout(() => {
+    const textEl = document.querySelector('.evilPigeonText');
+    if (textEl) textEl.remove();
+  }, 3000);
+
+  const speed = pigeonSpeedForLevel(levelIndex);
+  for (let i = 0; i < numPigeons; i++) {
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+    if (side === 0) { x = -50; y = Math.random() * window.innerHeight; }
+    else if (side === 1) { x = window.innerWidth + 50; y = Math.random() * window.innerHeight; }
+    else if (side === 2) { x = Math.random() * window.innerWidth; y = -50; }
+    else { x = Math.random() * window.innerWidth; y = window.innerHeight + 50; }
+
+    const evilPigeon = document.createElement('div');
+    evilPigeon.classList.add('evilPigeon');
+    evilPigeon.style.left = x + 'px';
+    evilPigeon.style.top = y + 'px';
+    gameArea.appendChild(evilPigeon);
+
+    let dx = (window.innerWidth / 2 - x);
+    let dy = (window.innerHeight / 2 - y);
+    let dist = Math.sqrt(dx * dx + dy * dy);
+    let vx = (dx / dist) * speed;
+    let vy = (dy / dist) * speed;
+
+    evilPigeons.push({
+      el: evilPigeon,
+      x,
+      y,
+      w: 40,
+      h: 40,
+      vx,
+      vy
+    });
+  }
+}
+
+function spawnHellenPigeonLevel() {
+  const speed = pigeonSpeedForLevel(levelIndex);
+  spawnMovingPigeons(9);
+
+  const pos = randomPosition(50, 50);
+  const fakePigeon = document.createElement('div');
+  fakePigeon.classList.add('imitationPigeon');
+  fakePigeon.style.left = pos.x + 'px';
+  fakePigeon.style.top = pos.y + 'px';
+  gameArea.appendChild(fakePigeon);
+  pigeons.push({
+    el: fakePigeon,
+    x: pos.x,
+    y: pos.y,
+    w: 50,
+    h: 50,
+    vx: speed * (Math.random() < 0.5 ? 1 : -1),
+    vy: speed * (Math.random() < 0.5 ? 1 : -1),
+    isFake: true
+  });
+}
+
+function spawnGoldenFinale(count) {
+  const speed = 1.2;
+  for (let i = 0; i < count; i++) {
+    const pos = randomPosition(60, 60);
+    const gp = document.createElement('div');
+    gp.classList.add('goldenPigeon');
+    gp.style.left = pos.x + 'px';
+    gp.style.top = pos.y + 'px';
+    gameArea.appendChild(gp);
+    goldenPigeons.push({
+      el: gp,
+      x: pos.x,
+      y: pos.y,
+      w: 60,
+      h: 60,
+      vx: 0,
+      vy: 0,
+      speed: speed
+    });
+  }
+
+  setInterval(() => {
+    goldenPigeons.forEach(gp => {
+      gp.x = Math.random() * (window.innerWidth - gp.w);
+      gp.y = Math.random() * (window.innerHeight - gp.h);
+      gp.el.style.left = gp.x + 'px';
+      gp.el.style.top = gp.y + 'px';
+    });
+  }, 2000);
+
+  evilPigeonInterval = setInterval(() => {
+    if (currentLevel.special !== "goldenFinale") {
+      clearInterval(evilPigeonInterval);
+      return;
+    }
+    spawnRandomEvilPigeon();
+  }, 2000);
+}
+
+function spawnRandomEvilPigeon() {
+  const side = Math.floor(Math.random() * 4);
+  let x, y;
+  if (side === 0) { x = -40; y = Math.random() * window.innerHeight; }
+  else if (side === 1) { x = window.innerWidth + 40; y = Math.random() * window.innerHeight; }
+  else if (side === 2) { x = Math.random() * window.innerWidth; y = -40; }
+  else { x = Math.random() * window.innerWidth; y = window.innerHeight + 40; }
+
+  const evilPigeon = document.createElement('div');
+  evilPigeon.classList.add('evilPigeon');
+  evilPigeon.style.left = x + 'px';
+  evilPigeon.style.top = y + 'px';
+  gameArea.appendChild(evilPigeon);
+
+  let dx = jeffPos.x - x;
+  let dy = jeffPos.y - y;
+  let dist = Math.sqrt(dx * dx + dy * dy);
+  let speed = 1.3;
+  let vx = (dx / dist) * speed;
+  let vy = (dy / dist) * speed;
+
+  evilPigeons.push({
+    el: evilPigeon,
+    x,
+    y,
+    w: 40,
+    h: 40,
+    vx,
+    vy
+  });
+}
+function animate() {
+  if (keysPressed["ArrowLeft"]) jeffPos.x -= jeffSpeed;
+  if (keysPressed["ArrowRight"]) jeffPos.x += jeffSpeed;
+  if (keysPressed["ArrowUp"]) jeffPos.y -= jeffSpeed;
+  if (keysPressed["ArrowDown"]) jeffPos.y += jeffSpeed;
+
+  jeffPos.x = Math.max(0, Math.min(window.innerWidth - 80, jeffPos.x));
+  jeffPos.y = Math.max(0, Math.min(window.innerHeight - 80, jeffPos.y));
+  jeff.style.left = jeffPos.x + "px";
+  jeff.style.top = jeffPos.y + "px";
+
+  pigeons.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0 || p.x > window.innerWidth - p.w) p.vx *= -1;
+    if (p.y < 0 || p.y > window.innerHeight - p.h) p.vy *= -1;
+    p.el.style.left = p.x + 'px';
+    p.el.style.top = p.y + 'px';
+  });
+
+  pigeons.forEach((p, index) => {
+    if (isColliding(jeffPos, { x: p.x, y: p.y, w: p.w, h: p.h })) {
+      if (p.isFake) {
+        const trollLine = trollGameOverLines[Math.floor(Math.random() * trollGameOverLines.length)];
+        showGameOver("It was Hellen disguised as a pigeon!\n\n" + trollLine);
+        return;
+      }
+      p.el.remove();
+      pigeons.splice(index, 1);
+      pigeonsCollected++;
+      pigeonsSaved++;
+      score += 100;
+      scoreboard.textContent = `Score: ${score}`;
+      pigeonCountDisplay.textContent = `Pigeons Saved: ${pigeonsSaved}`;
+
+      let remainingRealPigeons = pigeons.filter(p => !p.isFake).length;
+      if (remainingRealPigeons === 0 && pigeonsCollected >= currentLevel.pigeonsRequired) {
+        nextLevel();
+        return;
+      } else if (currentLevel.special === null) {
+        spawnStaticPigeon();
+      }
+    }
+  });
+
+  evilPigeons.forEach((ep, index) => {
+    ep.x += ep.vx;
+    ep.y += ep.vy;
+    ep.el.style.left = ep.x + 'px';
+    ep.el.style.top = ep.y + 'px';
+
+    if (Math.abs(ep.x - window.innerWidth / 2) < 40 &&
+        Math.abs(ep.y - window.innerHeight / 2) < 40) {
+      const trollLine = trollGameOverLines[Math.floor(Math.random() * trollGameOverLines.length)];
+      showGameOver("An evil pigeon reached the nest!\n\n" + trollLine);
+      return;
+    }
+
+    if (isColliding(jeffPos, { x: ep.x, y: ep.y, w: ep.w, h: ep.h })) {
+      ep.el.remove();
+      evilPigeons.splice(index, 1);
+      pigeonsCollected++;
+      pigeonsSaved++;
+      score += 100;
+      scoreboard.textContent = `Score: ${score}`;
+      pigeonCountDisplay.textContent = `Pigeons Saved: ${pigeonsSaved}`;
+      if (pigeonsCollected >= currentLevel.pigeonsRequired) {
+        nextLevel();
+        return;
+      }
+    }
+  });
+
+  goldenPigeons.forEach((gp, index) => {
+    gp.x += (Math.random() - 0.5) * gp.speed * 10;
+    gp.y += (Math.random() - 0.5) * gp.speed * 10;
+    gp.x = Math.max(0, Math.min(window.innerWidth - gp.w, gp.x));
+    gp.y = Math.max(0, Math.min(window.innerHeight - gp.h, gp.y));
+    gp.el.style.left = gp.x + 'px';
+    gp.el.style.top = gp.y + 'px';
+
+    if (isColliding(jeffPos, { x: gp.x, y: gp.y, w: gp.w, h: gp.h })) {
+      gp.el.remove();
+      goldenPigeons.splice(index, 1);
+      pigeonsCollected++;
+      pigeonsSaved++;
+      score += 200;
+      scoreboard.textContent = `Score: ${score}`;
+      pigeonCountDisplay.textContent = `Pigeons Saved: ${pigeonsSaved}`;
+      if (goldenPigeons.length === 0) {
+        nextLevel();
+        return;
+      }
+    }
+  });
+
+  let dx = jeffPos.x - monsterPos.x;
+  let dy = jeffPos.y - monsterPos.y;
+  let dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist > 0) {
+    monsterPos.x += (dx / dist) * monsterSpeed;
+    monsterPos.y += (dy / dist) * monsterSpeed;
+  }
+  updateMonsterPosition();
+
+  if (isHellenCatchingJeff(jeffPos, monsterPos)) {
+    const trollLine = trollGameOverLines[Math.floor(Math.random() * trollGameOverLines.length)];
+    showGameOver("Hellen caught Jeff!\n\n" + trollLine);
+    return;
+  }
+
+  animationFrameId = requestAnimationFrame(animate);
+}
+
+function nextLevel() {
+  levelIndex++;
+  clearGameArea();
+
+  if (levelIndex >= levels.length) {
+    const finalWinMessage =
+      "Jeff scoops up his last pigeon and flips Hellen the bird.\n\n" +
+      "Time for a well-earned bag of breadcrumbs!\n\n" +
+      trollVictoryLines[Math.floor(Math.random() * trollVictoryLines.length)];
+
+    document.querySelector("#winScreen p").textContent = finalWinMessage;
+    winScreen.style.display = 'flex';
+    setTimeout(() => {
+      winScreen.style.display = 'none';
+      levelIndex = 0;
+      pigeonsSaved = 0;
+      score = 0;
+      startLevel(levelIndex);
+    }, 10000);
+  } else {
+    const trollWin = trollVictoryLines[Math.floor(Math.random() * trollVictoryLines.length)];
+    message.textContent = "Level Complete!\n" + trollWin;
+    setTimeout(() => {
+      message.textContent = "";
+      startLevel(levelIndex);
+    }, 5000);
+  }
+}
+
+function showGameOver(text) {
+  cancelAnimationFrame(animationFrameId);
+  clearGameArea();
+  gameOverText.textContent = text;
+  gameOverScreen.style.display = 'flex';
+  setTimeout(() => {
+    gameOverScreen.style.display = 'none';
+    levelIndex = 0;
+    pigeonsSaved = 0;
+    score = 0;
+    startLevel(levelIndex);
+  }, 10000);
+}
+</script>
+</body>
+</html>
